@@ -11,7 +11,7 @@ npm install nodemon
 npm install cors
 npm install express-promise-router
 npm install uuid
-
+npm install bcrypt
 
 
 onClick={() => getQuestions = setShowQuestions(!showQuestions)}  
