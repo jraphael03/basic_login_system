@@ -1,6 +1,6 @@
 import './App.css';
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function App() {
   // FOR REGISTRATION
@@ -13,6 +13,9 @@ function App() {
 
   //  USE STATE TO OUTPUT LOGIN ERROR ON SCREEN 
   const [loginStatus, setLoginStatus] = useState("");
+
+  // SEEING THE SESSION IN THE FRONTEND
+  axios.defaults.withCredentials = true;
 
   //  REGISTER
   const register = () => {
@@ -38,6 +41,16 @@ function App() {
       }
     })
   }
+
+  // useEffect FOR SESSION
+  useEffect(() => {
+    axios.get("http://localhost:5000/login").then((response) => {
+      //console.log(response);
+      if (response.data.loggedIn === true){
+      setLoginStatus(response.data.user[0].username);
+      }
+    })
+  }, [])
 
   return (
     <div className="App">

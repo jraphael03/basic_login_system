@@ -4,11 +4,32 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const bodyParser = require("body-parser");      //  Parses all of the body elements from the frontend
+const cookieParser = require('cookie-parser');  //  Parses all of the cookies we have
+const session = require('express-session');     // Session maintains the sessions we create (ex: refresh page or open new tabs and staying logged in)
+
 const app = express();
 const port = 5000;
 
-app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"], //urls we want to save
+    methods: ["GET", "POST"],           //methods we are using
+    credentials: true,
+  })
+);
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(session({
+    key: "userId",        //key is the name of cookie you are going to create
+    secret: "subscribe",     //secrets should be difficult to figure out very long
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        expires: 60 * 60 * 24,      //cookie will expire in 24 hours9
+    }
+}))
 
 // CONNECT TO DB
 const db = mysql.createConnection({
@@ -43,6 +64,15 @@ app.post('/register', (req,res) => {
 })
 
 
+// CREATE LOGIN GET FOR SESSION (THIS IS CREATED AFTER POST FOR LOGIN)
+app.get("/login", (req, res) => {
+    if (req.session.user){
+        res.send({ loggedIn: true, user: req.session.user })        // if there is a session with a user object already created in our server send the following object, logged in and the user
+    } else {
+        res.send({ loggedIn: false })                               // if there is not a session called req.session.user logged in will equal false
+    }
+})
+
 
 // CREATING A LOGIN PATH 
 app.post('/login', (req, res) => {
@@ -58,6 +88,9 @@ app.post('/login', (req, res) => {
             if(result.length > 0) {
                 bcrypt.compare(password, result[0].password, (error, response) => {     // COMPARE TO THE RESULT OF THE PASSWORD TO THE USER WE ARE TRYING TO ACCESS
                     if (response){
+                        // BEFORE WE SEND RESULT TO THE FRONT END WE WANT TO CREATE A SESSION THAT CONTAINS THE COOKIE
+                        req.session.user = result       //create a session named user equal to our result (login)
+                        console.log(req.session.user);
                         res.send(result)            //if combination is correct
                     } else{
                         res.send({message: "Username and/or Password is incorrect"})       //if combination is incorrect
