@@ -1,0 +1,19 @@
+CLIENT
+npx create-react-app .
+npm install axios       //allows request to API
+
+SERVER
+npm init -y
+npm install express
+npm body-parser
+npm install mysql
+npm install nodemon
+npm install cors
+npm install express-promise-router
+npm install uuid
+
+
+
+onClick={() => getQuestions = setShowQuestions(!showQuestions)}  
+
+
